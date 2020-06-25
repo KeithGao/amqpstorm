@@ -1,8 +1,8 @@
 import threading
 
 from mock import Mock
-from pamqp import ContentHeader
-from pamqp import specification
+from pamqp.header import ContentHeader
+from pamqp import commands
 from pamqp.body import ContentBody
 
 from amqpstorm import AMQPChannelError
@@ -19,7 +19,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -35,7 +35,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -51,7 +51,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
 
         channel._inbound = [deliver, deliver, header]
@@ -67,7 +67,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -81,20 +81,20 @@ class ChannelBuildMessageTests(TestFramework):
     def test_channel_build_message_headers(self):
         channel = Channel(0, Mock(name='Connection'), 360)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=10)
 
         channel._inbound = [deliver, header]
         result = channel._build_message_headers()
 
-        self.assertIsInstance(result[0], specification.Basic.Deliver)
+        self.assertIsInstance(result[0], commands.Basic.Deliver)
         self.assertIsInstance(result[1], ContentHeader)
         self.assertEqual(result[1].body_size, 10)
 
     def test_channel_build_message_headers_out_of_order(self):
         channel = Channel(0, Mock(name='Connection'), 360)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=10)
 
         channel._inbound = [header, deliver]
@@ -127,7 +127,7 @@ class ChannelBuildMessageTests(TestFramework):
         channel._inbound = []
 
         def add_inbound():
-            channel._inbound.append(ContentBody())
+            channel._inbound.append(ContentBody(None))
 
         threading.Timer(function=add_inbound, interval=0.1).start()
 
@@ -208,7 +208,7 @@ class ChannelBuildMessageTests(TestFramework):
             channel._inbound.append(ContentHeader(body_size=message_len))
             channel._inbound.append(ContentBody(value=message))
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         channel._inbound = [deliver]
 
         self.assertTrue(channel._inbound)
@@ -227,7 +227,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -247,7 +247,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -268,7 +268,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -291,7 +291,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -316,7 +316,7 @@ class ChannelBuildMessageTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver()
+        deliver = commands.Basic.Deliver()
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -342,7 +342,7 @@ class ChannelProcessDataEventTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver(consumer_tag='travis-ci')
+        deliver = commands.Basic.Deliver(consumer_tag='travis-ci')
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -367,7 +367,7 @@ class ChannelProcessDataEventTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver(consumer_tag='travis-ci')
+        deliver = commands.Basic.Deliver(consumer_tag='travis-ci')
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -401,7 +401,7 @@ class ChannelStartConsumingTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver = specification.Basic.Deliver(consumer_tag='travis-ci')
+        deliver = commands.Basic.Deliver(consumer_tag='travis-ci')
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)
 
@@ -430,7 +430,7 @@ class ChannelStartConsumingTests(TestFramework):
         message_len = len(message)
 
         def add_inbound():
-            deliver = specification.Basic.Deliver(consumer_tag='travis-ci')
+            deliver = commands.Basic.Deliver(consumer_tag='travis-ci')
             header = ContentHeader(body_size=message_len)
             body = ContentBody(value=message)
 
@@ -465,11 +465,11 @@ class ChannelStartConsumingTests(TestFramework):
         message = self.message.encode('utf-8')
         message_len = len(message)
 
-        deliver_one = specification.Basic.Deliver(
+        deliver_one = commands.Basic.Deliver(
             consumer_tag='travis-ci-1')
-        deliver_two = specification.Basic.Deliver(
+        deliver_two = commands.Basic.Deliver(
             consumer_tag='travis-ci-2')
-        deliver_three = specification.Basic.Deliver(
+        deliver_three = commands.Basic.Deliver(
             consumer_tag='travis-ci-3')
         header = ContentHeader(body_size=message_len)
         body = ContentBody(value=message)

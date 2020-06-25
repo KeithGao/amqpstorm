@@ -21,11 +21,6 @@ class CompatibilityTests(TestFramework):
         x = ''
         self.assertFalse(compatibility.is_integer(x))
 
-    @unittest.skipIf(sys.version_info[0] == 3, 'No long obj in Python 3')
-    def test_compatibility_long_integer(self):
-        x = long(100)
-        self.assertTrue(compatibility.is_integer(x))
-
     def test_compatibility_normal_string(self):
         x = ''
         self.assertTrue(compatibility.is_string(x))
@@ -34,28 +29,9 @@ class CompatibilityTests(TestFramework):
         x = b''
         self.assertTrue(compatibility.is_string(x))
 
-    @unittest.skipIf(sys.version_info[0] == 3, 'No unicode obj in Python 3')
-    def test_compatibility_unicode_string(self):
-        x = u'Mor, lilla mor, vem är väl som du'
-        self.assertTrue(compatibility.is_string(x))
-
     def test_compatibility_is_not_string(self):
         x = 100
         self.assertFalse(compatibility.is_string(x))
-
-    @unittest.skipIf(sys.version_info[0] == 3, 'No unicode obj in Python 3')
-    def test_compatibility_is_unicode(self):
-        x = u'Mor, lilla mor, vem är väl som du'
-        self.assertTrue(compatibility.is_unicode(x))
-
-    def test_compatibility_is_not_unicode(self):
-        x = ''
-        self.assertFalse(compatibility.is_unicode(x))
-
-    @unittest.skipIf(sys.version_info[0] == 3, 'No unicode obj in Python 3')
-    def test_compatibility_py2_try_utf8_decode(self):
-        x = unicode('hello world')
-        self.assertEqual(str(x), compatibility.try_utf8_decode(x))
 
     @unittest.skipIf(sys.version_info[0] == 2, 'No bytes decoding in Python 2')
     def test_compatibility_py3_try_utf8_decode(self):
@@ -77,18 +53,6 @@ class CompatibilityTests(TestFramework):
     def test_compatibility_try_utf8_decode_on_dict(self):
         x = dict(hello='world')
         self.assertEqual(x, compatibility.try_utf8_decode(x))
-
-    @unittest.skipIf(sys.version_info[0] == 3, 'Python 2.x test')
-    def test_compatibility_python_2_x(self):
-        self.assertFalse(compatibility.PYTHON3)
-
-    @unittest.skipIf(sys.version_info[0] == 2, 'Python 3.x test')
-    def test_compatibility_python_3_x(self):
-        self.assertTrue(compatibility.PYTHON3)
-
-    @unittest.skipIf(sys.version_info[0] == 3, 'Python 2.x test')
-    def test_compatibility_python_2_x_range(self):
-        self.assertEqual(compatibility.RANGE, xrange)
 
     @unittest.skipIf(sys.version_info[0] == 2, 'Python 3.x test')
     def test_compatibility_python_3_x_range(self):
@@ -201,7 +165,7 @@ class CompatibilitySslTests(unittest.TestCase):
             imp.reload(compatibility)
 
     def test_compatibility_only_tls_v1_supported(self):
-        """This tests mimics the behavior of Python 2.7.8 or earlier that
+        """This test mimics the behavior of earlier versions of Python that
         only supported TLS v1 and SSLv23.
         """
         restore_tls_v1_2 = sys.modules['ssl'].PROTOCOL_TLSv1_2
